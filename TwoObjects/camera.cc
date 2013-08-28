@@ -1,7 +1,7 @@
 #include "main.h"
 #include "camera.h"
 
-#define MOUSETHING 500 //originally 1000
+#define MOUSEDIV 500 //originally 1000
 
 void Camera::setCameraPosition(float pos_x, float pos_y, float pos_z,
 			                   float view_x, float view_y, float view_z,
@@ -29,8 +29,8 @@ void Camera::moveMouse()
 
 	SDL_WarpMouse(midX, midY);
 
-	angle_y = (float)(midX - mouseX) / MOUSETHING;
-	angle_z = (float)(midY - mouseY) / MOUSETHING;
+	angle_y = (float)(midX - mouseX) / MOUSEDIV;
+	angle_z = (float)(midY - mouseY) / MOUSEDIV;
 
 	mView.y += angle_z * 2;
 
