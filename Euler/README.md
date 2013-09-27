@@ -23,7 +23,7 @@ infinity.
 
 
 IMPLEMENTATION NOTES
-====================
+--------------------
 I used a lot of arrays in this program. Usually, I would use vectors, lists,
 or whatever would be appropriate. However, OpenGL is implemented in C, and uses
 standard C arrays for everything. So, that's why there are arrays for everything
@@ -31,7 +31,7 @@ in this implementation.
 
 
 COMPILATION INSTRUCTIONS
-========================
+------------------------
 I compiled this on a 64-bit Linux system. OpenGL and SDL are both required for
 this to run correctly.
 
@@ -45,12 +45,14 @@ To compile and run:
 
 If make doesn't work, this should:
 
+```
 g++ `sdl-config --cflags` -Wall -O2 -c Kerr.cc Camera.cc Euler.cc Sphere.cc Particle.cc Vector.cc
-gcc `sdl-config --libs` -I/usr/X11R6/include -L/usr/X11R6/lib -lGL -lGLU -lm -lstdc++ Kerr.o Camera.o Euler.o Sphere.o Particle.o Vector.o -o kerr 
+gcc `sdl-config --libs` -I/usr/X11R6/include -L/usr/X11R6/lib -lGL -lGLU -lm -lstdc++ Kerr.o Camera.o Euler.o Sphere.o Particle.o Vector.o -o kerr
+```
 
 
 USAGE INSTRUCTIONS
-==================
+------------------
 There are several elements which can be configured for this program.
 
 First of all, it's likely that the screen resolution may not work. Camera.h
