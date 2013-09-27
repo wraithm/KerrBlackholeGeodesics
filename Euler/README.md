@@ -71,6 +71,7 @@ conditions for the particles is included in Kerr.cc.
 
 The mouse is used to look around.
 
+```
 The keyboard commands are:
 Q or ESC - Quit
 W - Move forward
@@ -79,3 +80,4 @@ D - Strafe right
 S - Move backward
 E - Move upward
 C - Move downward
+```
