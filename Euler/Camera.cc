@@ -16,7 +16,7 @@ void Camera::setCameraPosition(
 
 // Draw the screen, and draw a crosshair
 void Camera::drawCamera() {
-	gluLookAt(
+    gluLookAt(
         pos.x,  pos.y,  pos.z,
         view.x, view.y, view.z,
         up.x,   up.y,   up.z

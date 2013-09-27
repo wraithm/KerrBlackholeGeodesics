@@ -83,11 +83,11 @@ void drawGrid() {
 // Draw the scene to the screen.
 // This draws the camera, the black hole, and any particles that I want.
 void drawScene(SDL_Surface *screen) {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glLoadIdentity();
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glLoadIdentity();
 
     camera.drawCamera();
-	//drawGrid(); // A grid if you'd like to see where you are.
+    //drawGrid(); // A grid if you'd like to see where you are.
     
     // Make a lit yellow sphere
     glPushMatrix();
@@ -110,7 +110,7 @@ void drawScene(SDL_Surface *screen) {
     p2.drawThis();
     
     glFlush();
-	SDL_GL_SwapBuffers();			
+    SDL_GL_SwapBuffers();           
 }
 
 // Initialize everything.
@@ -120,17 +120,17 @@ void init() {
     float whiteLight[] = { 0.8f, 0.8f, 0.8f, 1.0f };
     float ambient[] = { 0.2f, 0.2f, 0.2f, 1.0f };
 
-	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 32);
-	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-	SDL_EnableKeyRepeat(10, 30);
+    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 32);
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+    SDL_EnableKeyRepeat(10, 30);
 
     // Set up lighting
     glEnable(GL_LIGHTING);
     glEnable(GL_LIGHT0); // Only one light
 
     // Smooth shading
-	glClearColor(0.0, 0.0, 0.0, 0.0); // Black background
-	glShadeModel(GL_SMOOTH);
+    glClearColor(0.0, 0.0, 0.0, 0.0); // Black background
+    glShadeModel(GL_SMOOTH);
 
     // Material properties
     glEnable(GL_COLOR_MATERIAL);
@@ -144,25 +144,25 @@ void init() {
     glLightfv(GL_LIGHT0, GL_AMBIENT, ambient);
     glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambient);
 
-	glClearDepth(1.0f);
-	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LEQUAL);
-	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+    glClearDepth(1.0f);
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LEQUAL);
+    glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 
-	SDL_ShowCursor(0); // Don't show the cursor
+    SDL_ShowCursor(0); // Don't show the cursor
     glPointSize(3.0f);
-		
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
+        
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
 
-	gluPerspective(80.0f, WINSIZEX/WINSIZEY, 0.1f, 300.0f); // Set up the perspective
+    gluPerspective(80.0f, WINSIZEX/WINSIZEY, 0.1f, 300.0f); // Set up the perspective
 
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
     // Done with OpenGL and SDL
     
     // Initialize the camera
-	camera.setCameraPosition(0, 2.5f, 5,  0, 2.5f, 0,  0, 1, 0); 
+    camera.setCameraPosition(0, 2.5f, 5,  0, 2.5f, 0,  0, 1, 0); 
 }
 
 // The keyboard function
@@ -176,7 +176,7 @@ void init() {
 //
 // in main(), ESC and Q are given for quitting
 void keyboardInput(float direction) {
-	Uint8 *keystate = SDL_GetKeyState(NULL);
+    Uint8 *keystate = SDL_GetKeyState(NULL);
 
     if(keystate[SDLK_w])
         camera.moveCamera(+direction);
@@ -204,42 +204,42 @@ int main(int argc, char *argv[]) {
     int options = (SDL_FULLSCREEN|SDL_OPENGL);
 
     // If the screen can't be initialized, quit
-	if(SDL_Init(SDL_INIT_VIDEO) < 0) {
-  		cout << "Unable to init SDL: " << SDL_GetError() << endl;
-  		exit(1);
-  	}
-	
-	atexit(SDL_Quit);
+    if(SDL_Init(SDL_INIT_VIDEO) < 0) {
+        cout << "Unable to init SDL: " << SDL_GetError() << endl;
+        exit(1);
+    }
+    
+    atexit(SDL_Quit);
 
     // Set up the screen
-  	SDL_Surface *screen;
-  	screen = SDL_SetVideoMode(WINSIZEX, WINSIZEY, 32, options);
+    SDL_Surface *screen;
+    screen = SDL_SetVideoMode(WINSIZEX, WINSIZEY, 32, options);
   
-	if(screen == NULL) {
-		cout << "Unable to set video: " << SDL_GetError() << endl;
-    	exit(1);
-  	}
+    if(screen == NULL) {
+        cout << "Unable to set video: " << SDL_GetError() << endl;
+        exit(1);
+    }
   
-	int done = 0;
+    int done = 0;
 
-	init();
+    init();
     
-  	while(done == 0) {
-    	while(SDL_PollEvent(&event)) {
-			if(event.type == SDL_QUIT)
-				done = 1; 
-	
-			if(event.type == SDL_KEYDOWN) {
-      			if(event.key.keysym.sym == SDLK_ESCAPE || event.key.keysym.sym == SDLK_q) 
-					done = 1; // ESC or Q to quit
-				
-				keyboardInput(0.15f); // Keyboard function
-			}
-		}
+    while(done == 0) {
+        while(SDL_PollEvent(&event)) {
+            if(event.type == SDL_QUIT)
+                done = 1; 
+    
+            if(event.type == SDL_KEYDOWN) {
+                if(event.key.keysym.sym == SDLK_ESCAPE || event.key.keysym.sym == SDLK_q) 
+                    done = 1; // ESC or Q to quit
+                
+                keyboardInput(0.15f); // Keyboard function
+            }
+        }
 
-		camera.moveMouse(); // Detect mouse motion
-   		drawScene(screen); // Draw everything
-	}
+        camera.moveMouse(); // Detect mouse motion
+        drawScene(screen); // Draw everything
+    }
 
     return 0;
 }

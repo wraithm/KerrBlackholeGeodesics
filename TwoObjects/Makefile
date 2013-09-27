@@ -5,7 +5,7 @@ RM = /bin/rm -f
 CFLAGS = `sdl-config --cflags` -Wall -O2
 LDFLAGS = `sdl-config --libs` -I/usr/X11R6/include -L/usr/X11R6/lib -lm -lGL -lGLU
 
-SRC = kerr.cc camera.cc odesolver.cc sphere.cc
+SRC = Kerr.cc Camera.cc Odesolver.cc Sphere.cc
 OBJ = $(SRC:.cc=.o)
 
 PROG = kerr 

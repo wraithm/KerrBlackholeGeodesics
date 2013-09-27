@@ -4,8 +4,7 @@
 
 double dtsave;
 
-void Derivs(double t, double *XT, double *XF)
-{
+void Derivs(double t, double *XT, double *XF) {
     const double M = MASS, a = ANGM/MASS;
 
     XF[1] = XT[5];
@@ -25,8 +24,7 @@ void Derivs(double t, double *XT, double *XF)
 }
 
 
-void rk4(double *y, double *dydt, int n, double t, double h, double *yout)
-{
+void rk4(double *y, double *dydt, int n, double t, double h, double *yout) {
     int i;
     double th,hh,h6;
     double dym[MAXVAR], dyt[MAXVAR], yt[MAXVAR];
@@ -43,8 +41,7 @@ void rk4(double *y, double *dydt, int n, double t, double h, double *yout)
 
     Derivs(th,yt,dym);
 
-    for (i=1; i<=n; i++)
-    {
+    for (i=1; i<=n; i++) {
         yt[i] = y[i] + h*dym[i];
         dym[i] = dyt[i] + dym[i];
     }
@@ -54,8 +51,7 @@ void rk4(double *y, double *dydt, int n, double t, double h, double *yout)
     for (i=1; i<=n; i++) yout[i] = y[i]+h6*(dydt[i]+dyt[i]+2.0*dym[i]);
 }
 
-void rkqc(double *y, double *dydt, int n, double *t, double htry, double eps, double *yscal, double *hdid, double *hnext)
-{
+void rkqc(double *y, double *dydt, int n, double *t, double htry, double eps, double *yscal, double *hdid, double *hnext) {
 // LABEL: e1
 const double pgrow=-0.20,
              pshrnk=-0.25,
@@ -70,8 +66,7 @@ const double pgrow=-0.20,
     double dysav[MAXVAR], ysav[MAXVAR], ytemp[MAXVAR];
 
     tsav= *t;         // Save begin time
-    for (i=1; i<=n; i++)
-    {
+    for (i=1; i<=n; i++) {
         ysav[i] = y[i];
         dysav[i]= dydt[i];
     }
@@ -89,31 +84,27 @@ e1: hh = 0.5*h;      //take 2 half time steps
     rk4(ysav,dysav,n,tsav,h,ytemp);
     errmax = 0;      //Evaluate error
     temp = 0;
-    for (i=1; i<=n; i++)
-    {
+    for (i=1; i<=n; i++) {
         ytemp[i] = y[i] - ytemp[i];   //ytemp = estimated error
         if (yscal[i]>tiny)  temp = fabs(ytemp[i]/yscal[i]);
         if (errmax < temp)  errmax = temp;
     }
     errmax = errmax/eps;     //real error / requirement
-    if (errmax > un)
-    {       //Error too big, reduce h
+    if (errmax > un) {       //Error too big, reduce h
         h = safety*h*exp(pshrnk*log(errmax));
         goto e1;               //start again
-    }
-    else
-    {                   //the step has been a success!
+    } else {                   //the step has been a success!
         *hdid = h;              //Calculate next time step
         if (errmax > errcon)
             *hnext=safety*h*exp(pgrow*log(errmax));
         else
             *hnext = 4.0*h;
     }
+
     for (i=1; i<=n; i++) y[i] += ytemp[i]*fcor;
 }
 
-void odeint(double *ystart, int nvar, double t1, double t2, double eps, double *h1, double hmin, int *nok, int *nbad)
-{
+void odeint(double *ystart, int nvar, double t1, double t2, double eps, double *h1, double hmin, int *nok, int *nbad) {
 // LABEL: e99
 
     const int maxstp = 10000;
@@ -154,6 +145,6 @@ void odeint(double *ystart, int nvar, double t1, double t2, double eps, double *
          }
          h = hnext;
      }
-	 cout << " Pause in ODEINT - too many time steps!" << endl;
+     cout << " Pause in ODEINT - too many time steps!" << endl;
 e99: *h1 = h;
 } 

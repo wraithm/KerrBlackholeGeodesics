@@ -6,7 +6,7 @@ CFLAGS = -I/Library/Frameworks/SDL.framework/Headers/ -I/System/Library/Framewor
 #CFLAGS = -I/opt/local/include/ -I/System/Library/Frameworks/OpenGL.framework/Headers -I/System/Library/Frameworks/GLUT.framework -framework SDL -framework Cocoa -framework OpenGL -Wall -O3 SDLmain.m
 #LDFLAGS = -I/Library/Frameworks/SDL.framework/Headers -I/System/Library/Frameworks/OpenGL.framework/Headers -lGL -lGLU -lSDL -lpthread
 
-SRC = kerr.cc camera.cc odesolver.cc sphere.cc
+SRC = Kerr.cc Camera.cc Odesolver.cc Sphere.cc
 #OBJ = $(SRC:.cc=.o)
 
 PROG = kerr 

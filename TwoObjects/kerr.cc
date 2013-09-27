@@ -41,14 +41,13 @@ void drawCross() {
     glPointSize(3.0);
 
     glBegin(GL_POINTS);
-        glVertex3f(objCamera.mView.x, objCamera.mView.y, objCamera.mView.z);
+        glVertex3f(objCamera.view.x, objCamera.view.y, objCamera.view.z);
     glEnd();
 }
 
 void drawGrid() {
     glBegin(GL_LINES);
-    for(float i = -500; i <= 500; i += 5)
-    {
+    for(float i = -500; i <= 500; i += 5) {
         glColor3ub(150, 190, 150);
         glVertex3f(-500, 0, i);
         glVertex3f(500, 0, i);
@@ -149,67 +148,67 @@ void drawTrace() {
 }
 
 void DrawScene(SDL_Surface *screen) {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glLoadIdentity();
-	gluLookAt(objCamera.mPos.x,  objCamera.mPos.y,  objCamera.mPos.z,
-              objCamera.mView.x, objCamera.mView.y, objCamera.mView.z,
-              objCamera.mUp.x,   objCamera.mUp.y,   objCamera.mUp.z);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glLoadIdentity();
+    gluLookAt(objCamera.pos.x,  objCamera.pos.y,  objCamera.pos.z,
+              objCamera.view.x, objCamera.view.y, objCamera.view.z,
+              objCamera.up.x,   objCamera.up.y,   objCamera.up.z);
 
-	//drawGrid();
-	drawCross();
+    //drawGrid();
+    drawCross();
     drawBH();
     drawKerr();
     drawTrace();
     
     glFlush();
-	SDL_GL_SwapBuffers();			
+    SDL_GL_SwapBuffers();           
 }
 
 void init() {
-	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 32);
-	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-	SDL_EnableKeyRepeat(10, 30);
+    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 32);
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+    SDL_EnableKeyRepeat(10, 30);
 
-	glShadeModel(GL_SMOOTH);
-	glClearColor(0.0, 0.0, 0.0, 0.0);
-	glClearDepth(1.0f);
-	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LEQUAL);
-	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+    glShadeModel(GL_SMOOTH);
+    glClearColor(0.0, 0.0, 0.0, 0.0);
+    glClearDepth(1.0f);
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LEQUAL);
+    glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 
-	SDL_ShowCursor(0);
-		
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
+    SDL_ShowCursor(0);
+        
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
 
-	gluPerspective(80.0f, WINSIZEX/WINSIZEY, 0.1f, 300.0f);
+    gluPerspective(80.0f, WINSIZEX/WINSIZEY, 0.1f, 300.0f);
 
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
 
-	objCamera.setCameraPosition(0, 2.5f, 5,  0, 2.5f, 0,  0, 1, 0);
+    objCamera.setCameraPosition(0, 2.5f, 5,  0, 2.5f, 0,  0, 1, 0);
 }
 
 void keyboardInput(float direction) {
-	Uint8 *keystate = SDL_GetKeyState(NULL);
+    Uint8 *keystate = SDL_GetKeyState(NULL);
 
-        if(keystate[SDLK_w])
-            objCamera.moveCamera(+direction);
+    if(keystate[SDLK_w])
+        objCamera.moveCamera(+direction);
 
-        if(keystate[SDLK_s])
-            objCamera.moveCamera(-direction);
+    if(keystate[SDLK_s])
+        objCamera.moveCamera(-direction);
 
-	    if(keystate[SDLK_a])
-            objCamera.strafeCamera(-direction);
+    if(keystate[SDLK_a])
+        objCamera.strafeCamera(-direction);
 
-        if(keystate[SDLK_d])
-            objCamera.strafeCamera(direction);
+    if(keystate[SDLK_d])
+        objCamera.strafeCamera(direction);
 
-        if(keystate[SDLK_e])
-            objCamera.flyCamera(3*direction);
+    if(keystate[SDLK_e])
+        objCamera.flyCamera(3*direction);
 
-        if(keystate[SDLK_c])
-            objCamera.flyCamera(-3*direction);
+    if(keystate[SDLK_c])
+        objCamera.flyCamera(-3*direction);
 }
 
 int options = (SDL_FULLSCREEN|SDL_OPENGL);
@@ -217,43 +216,42 @@ int options = (SDL_FULLSCREEN|SDL_OPENGL);
 int main(int argc, char *argv[]) {
     step = 0;
 
-	if(SDL_Init(SDL_INIT_VIDEO) < 0) {
-  		cout << "Unable to init SDL: " << SDL_GetError() << endl;
-  		exit(1);
-  	}
-	
-	atexit(SDL_Quit);
-
-  	SDL_Surface *screen;
-	//Maybe calculate computer speed and check what resolution to use?
-  	screen = SDL_SetVideoMode(WINSIZEX, WINSIZEY, 32, options);
-  
-	if(screen == NULL) {
-		cout << "Unable to set video: " << SDL_GetError() << endl;
-    	exit(1);
-  	}
-  
-	int done = 0;
-
-	init();
+    if(SDL_Init(SDL_INIT_VIDEO) < 0) {
+        cout << "Unable to init SDL: " << SDL_GetError() << endl;
+        exit(1);
+    }
     
-  	while(done == 0) {
-    	while(SDL_PollEvent(&event)) {
-			if(event.type == SDL_QUIT) {
-				done = 1; 
-			}
-	
-			if(event.type == SDL_KEYDOWN) {
-      			if(event.key.keysym.sym == SDLK_ESCAPE || event.key.keysym.sym == SDLK_q) {	
-					done = 1;
-				}
-				
-				keyboardInput(0.15f);
-			}
-		}
-		objCamera.moveMouse();
-   		DrawScene(screen);
-	}
+    atexit(SDL_Quit);
 
-return 0;
+    SDL_Surface *screen;
+    //Maybe calculate computer speed and check what resolution to use?
+    screen = SDL_SetVideoMode(WINSIZEX, WINSIZEY, 32, options);
+  
+    if(screen == NULL) {
+        cout << "Unable to set video: " << SDL_GetError() << endl;
+        exit(1);
+    }
+  
+    int done = 0;
+
+    init();
+    
+    while(done == 0) {
+        while(SDL_PollEvent(&event)) {
+            if(event.type == SDL_QUIT)
+                done = 1; 
+    
+            if(event.type == SDL_KEYDOWN) {
+                if(event.key.keysym.sym == SDLK_ESCAPE || event.key.keysym.sym == SDLK_q)
+                    done = 1;
+                
+                keyboardInput(0.15f);
+            }
+        }
+
+        objCamera.moveMouse();
+        DrawScene(screen);
+    }
+
+    return 0;
 }
