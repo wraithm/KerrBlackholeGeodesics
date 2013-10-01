@@ -1,6 +1,6 @@
 #include <math.h>
-#include "main.h"
-#include "odesolver.h"
+#include "Main.h"
+#include "Odesolver.h"
 
 double dtsave;
 
@@ -100,7 +100,6 @@ e1: hh = 0.5*h;      //take 2 half time steps
         else
             *hnext = 4.0*h;
     }
-
     for (i=1; i<=n; i++) y[i] += ytemp[i]*fcor;
 }
 

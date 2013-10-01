@@ -1,5 +1,5 @@
-#include "main.h"
-#include "sphere.h"
+#include "Main.h"
+#include "Sphere.h"
 
 /*
 void drawSphere(double radius, int ndiv) {

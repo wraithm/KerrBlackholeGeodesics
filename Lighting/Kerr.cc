@@ -1,14 +1,14 @@
-#include "main.h"
-#include "camera.h"
-#include "odesolver.h"
-#include "sphere.h"
+#include "Main.h"
+#include "Camera.h"
+#include "Odesolver.h"
+#include "Sphere.h"
 
-#define pi 3.141592654
+#define pi 3.1416
 
 #define INCREMENT 0.003f
-#define SIMSPEED 0.005 
-#define HISTORY 1000000
-#define PREVSTEP 1
+#define SIMSPEED 5 
+#define HISTORY 10000000
+#define PREVSTEP 0
 
 Camera objCamera;
 SDL_Event event;
@@ -17,24 +17,25 @@ double tint = 5.0;
 double dt;
 
 int step;
-float history[HISTORY];
-float history2[HISTORY];
-int iterations = 2;
+float historyx[HISTORY], historyy[HISTORY], historyz[HISTORY];
+int iterations;
 
+// Some interesting initial conditions.
+// TODO Read these from a config-file.
 //                         {0,   t,    r,   th,  ph,   t',  r',  th',  ph'};
-//double prevpos[MAXVAR] = {0, 0.0, 20.0, pi/2, 0.0, 20.0, 0.0, 0.28, 0.1}; //VERY large
-//double prevpos[MAXVAR] = {0, 0.0, 19.0, pi/2, 0.0, 10.0, 0.0, 0.08, 0.08}; //This works, I think.
-//double prevpos[MAXVAR] = {0, 0.0, 16.0, pi/2, 0.0, 30.0, 0.1, 0.5, 0.3}; //large sweeps
-//double prevpos[MAXVAR] = {0, 0.0, 50.0, pi/2, 0.0, 9.0, 0.0, 0.02, 0.02}; //large and crazy.
-//double prevpos[MAXVAR] = {0, 0.0, 18.0, pi/2, 0.0, 23.0, 0.0, 0.1, 0.1}; //The strange orbit that goes around the top and bottom
-//double prevpos[MAXVAR] = {0, 0.0, 18.0, pi/2, 0.0, 23.0, 0.0, 0.2, 0.2}; //very stable but tight
-//double prevpos[MAXVAR] = {0, 0.0, 18.0, pi/2, 0.0, 23.0, 0.0, 0.08, 0.08}; //very stable but tight
-double prevpos[MAXVAR] = {0, 0.0, 18.0, pi/2, 0.0, 23.0, 0.0, 0.06, 0.06};
-
-//double prevpos2[MAXVAR] = {0, 0.0, 18.0, pi/2, 0.0, 23.0, 0.0, 0.1, -0.1}; //counter rotating orbit... scary...
-//double prevpos2[MAXVAR] = {0, 0.0, 18.0, pi/2, 0.0, 23.0, 0.0, -0.1, -0.1}; //counter rotating orbit... scary too...
-double prevpos2[MAXVAR] = {0, 0.0, 18.0, pi/2, 0.0, 23.0, 0.0, -0.1, -0.2}; //counter rotating orbit... scary too...
-//double prevpos2[MAXVAR] = {0, 0.0, 50.0, pi/2, 0.0, 9.0, 0.0, 0.02, -0.02}; //counter rotating orbit... scary too...
+//double prevpos[MAXVAR] = {0, 0.0, 20.0, pi/2, 0.0, 20.0, 0.0, 0.28, 0.1};
+//double prevpos[MAXVAR] = {0, 0.0, 19.0, pi/2, 0.0, 10.0, 0.0, 0.08, 0.08};
+//double prevpos[MAXVAR] = {0, 0.0, 16.0, pi/2, 0.0, 30.0, 0.1, 0.5, 0.3};
+//double prevpos[MAXVAR] = {0, 0.0, 50.0, pi/2, 0.0, 9.0, 0.2, 0.02, 0.02};
+//double prevpos[MAXVAR] = {0, 0.0, 18.0, pi/2, 0.0, 23.0, 0.0, 0.1, 0.1};
+//double prevpos[MAXVAR] = {0, 0.0, 18.0, pi/2, 0.0, 23.0, 0.0, 0.2, 0.2};
+double prevpos[MAXVAR] = {0, 0.0, 18.0, pi/2, 0.0, 23.0, 0.0, 0.08, 0.08};
+//double prevpos[MAXVAR] = {0, 0.0, 18.0, pi/2, 0.0, 23.0, 0.0, 0.1, -0.1};
+//double prevpos[MAXVAR] = {0, 0.0, 18.0, pi/2, 0.0, 23.0, 0.0, -0.1, -0.1};
+//double prevpos[MAXVAR] = {0, 0.0, 18.0, pi/2, 0.0, 23.0, 0.0, -0.1, -0.2};
+//double prevpos[MAXVAR] = {0, 0.0, 18.0, pi/2, 0.0, 23.0, 0.0, 0.02, -0.02};
+//double prevpos[MAXVAR] = {0, 0.0, 18.0, pi/2, 0.0, 23.0, 0.0, 0.08, 0.06};
+//double prevpos[MAXVAR] = {0, 0.0, 18.0, pi/2, 0.0, 23.0, 0.0, 0.06, 0.06};
 
 void drawCross() {
     glColor3f(1.0, 1.0, 1.0);
@@ -59,18 +60,16 @@ void drawGrid() {
 
 void drawBH() {
     glColor3f(1.0f, 1.0f, 0.0f);
-    drawSphere(2.0f, 20);
+    drawSphere(2.0f*MASS, 20);
 }
 
 void drawKerr() {
-    double Y[MAXVAR], Y2[MAXVAR];
+    double Y[MAXVAR];
     int nbad, nok, nvar;
     double h, t1;
 
-    for(int i = 1; i <= MAXVAR; i++) {
+    for(int i = 1; i <= MAXVAR; i++)
         Y[i] = prevpos[i];
-        Y2[i] = prevpos2[i];
-    }
 
     nvar = 8;
     t1 = 0.0;
@@ -92,40 +91,28 @@ void drawKerr() {
     dt = deltat - tint;
 
     odeint(Y, nvar, t1, SIMSPEED*dt, 1e-4, &h, 0.001, &nok, &nbad);
-    odeint(Y2, nvar, t1, SIMSPEED*dt, 1e-4, &h, 0.001, &nok, &nbad);
+
+    float x = (float) sqrt(pow(Y[2], 2) + pow(ANGM/MASS, 2)) * cos(Y[4]) * sin(Y[3]);
+    float y = (float) Y[2] * cos(Y[3]);
+    float z = (float) sqrt(pow(Y[2], 2) + pow(ANGM/MASS, 2)) * sin(Y[3]) * sin(Y[4]);
 
     if(iterations <= HISTORY) {
-        //history[iterations] = (float) Y[2] * cos(Y[4]) * sin(Y[3]);
-        history[iterations] = (float) sqrt(pow(Y[2], 2) + pow(ANGM/MASS, 2)) * cos(Y[4]) * sin(Y[3]);
-        history[iterations - 1] = (float) Y[2] * cos(Y[3]);
-        history[iterations - 2] = (float) sqrt(pow(Y[2], 2) + pow(ANGM/MASS, 2)) * sin(Y[3]) * sin(Y[4]);
-        //history[iterations - 2] = (float) Y[2] * sin(Y[3]) * sin(Y[4]);
+        historyx[iterations] = x;
+        historyy[iterations] = y;
+        historyz[iterations] = z;
 
-        history2[iterations] = (float) sqrt(pow(Y2[2], 2) + pow(ANGM/MASS, 2)) * cos(Y2[4]) * sin(Y2[3]);
-        history2[iterations - 1] = (float) Y2[2] * cos(Y2[3]);
-        history2[iterations - 2] = (float) sqrt(pow(Y2[2], 2) + pow(ANGM/MASS, 2)) * sin(Y2[3]) * sin(Y2[4]);
-
-        iterations += 3;
+        iterations++;
     }
 
     glPushMatrix();
         glColor3ub(0, 0, 139);
-        glTranslatef((float) sqrt(pow(Y[2], 2) + pow(ANGM/MASS, 2)) * cos(Y[4]) * sin(Y[3]), (float) sqrt(pow(Y[2], 2) + pow(ANGM/MASS, 2)) * cos(Y[3]), (float) Y[2] * sin(Y[3]) * sin(Y[4]));
-        //glTranslatef((float) Y[2] * cos(Y[4]) * sin(Y[3]), (float) Y[2] * cos(Y[3]), (float) Y[2] * sin(Y[3]) * sin(Y[4]));
-        drawSphere(0.5f, 20);
-    glPopMatrix();
-
-    glPushMatrix();
-        glColor3ub(139, 0, 0);
-        glTranslatef((float) sqrt(pow(Y2[2], 2) + pow(ANGM/MASS, 2)) * cos(Y2[4]) * sin(Y2[3]), (float) sqrt(pow(Y2[2], 2) + pow(ANGM/MASS, 2)) * cos(Y2[3]), (float) Y2[2] * sin(Y2[3]) * sin(Y2[4]));
-        drawSphere(0.5f, 20);
+        glTranslatef(x, y, z);
+        drawSphere(0.25f, 20);
     glPopMatrix();
 
     if(step >= PREVSTEP) {
-        for(int i = 1; i <= MAXVAR; i++) {
+        for(int i = 1; i <= MAXVAR; i++)
             prevpos[i] = Y[i];
-            prevpos2[i] = Y2[i];
-        }
 
         step = 0;
     } else {
@@ -134,16 +121,17 @@ void drawKerr() {
 }
 
 void drawTrace() {
-    glBegin(GL_LINE_STRIP);
-        glColor3ub(0, 0, 139);
-        for(int i = 2; i <= iterations; i += 3)
-            glVertex3f(history[i], history[i - 1], history[i - 2]);
-    glEnd();
+    glColor3f(1.0f, 1.0f, 1.0f);
+    //glPointSize(0.01);
 
     glBegin(GL_LINE_STRIP);
-        glColor3ub(139, 0, 0);
-        for(int i = 2; i <= iterations; i += 3)
-            glVertex3f(history2[i], history2[i - 1], history2[i - 2]);
+        for(int i = 0; i < iterations; i++) {
+            glVertex3f(historyx[i], historyy[i], historyz[i]);
+            glNormal3f(historyx[i], historyy[i], historyz[i]);
+        }
+
+        glVertex3f(0.0f, 0.0f, 0.0f);
+        glNormal3f(0.0f, 0.0f, 0.0f);
     glEnd();
 }
 
@@ -155,10 +143,17 @@ void DrawScene(SDL_Surface *screen) {
               objCamera.up.x,   objCamera.up.y,   objCamera.up.z);
 
     //drawGrid();
-    drawCross();
     drawBH();
+    GLfloat light_position[] = {0.0, 0.0, 0.0, 1.0};
+    glPushMatrix();
+        glLightfv(GL_LIGHT0, GL_POSITION, light_position);
+    glPopMatrix();
     drawKerr();
+
+    glDisable(GL_LIGHT0);
     drawTrace();
+    drawCross();
+    glEnable(GL_LIGHT0);
     
     glFlush();
     SDL_GL_SwapBuffers();           
@@ -169,10 +164,33 @@ void init() {
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     SDL_EnableKeyRepeat(10, 30);
 
+    GLfloat mat_specular[] = {0.8, 0.8, 0.8, 1.0};
+    GLfloat mat_shininess[] = {50.0};
+    GLfloat white_light[] = {0.8, 0.8, 0.8, 1.0};
+    GLfloat lmodel_ambient[] = {0.2, 0.2, 0.2, 1.0};
+    GLfloat light_position[] = {0.0, 0.0, 0.0, 1.0};
+
+    glEnable(GL_LIGHTING);
+    glEnable(GL_LIGHT0);
+
     glShadeModel(GL_SMOOTH);
     glClearColor(0.0, 0.0, 0.0, 0.0);
+
+    glEnable(GL_COLOR_MATERIAL);
+    glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
+    glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
+    glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
+
+    glLightfv(GL_LIGHT0, GL_POSITION, light_position);
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, white_light);
+    glLightfv(GL_LIGHT0, GL_SPECULAR, lmodel_ambient);
+    glLightfv(GL_LIGHT0, GL_AMBIENT, lmodel_ambient);
+    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, lmodel_ambient);
+
+    //glEnable(GL_DEPTH_TEST);
     glClearDepth(1.0f);
     glEnable(GL_DEPTH_TEST);
+    //glEnable(GL_POINT_SMOOTH); //test
     glDepthFunc(GL_LEQUAL);
     glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 
@@ -215,6 +233,7 @@ int options = (SDL_FULLSCREEN|SDL_OPENGL);
 
 int main(int argc, char *argv[]) {
     step = 0;
+    iterations = 0;
 
     if(SDL_Init(SDL_INIT_VIDEO) < 0) {
         cout << "Unable to init SDL: " << SDL_GetError() << endl;
@@ -224,7 +243,6 @@ int main(int argc, char *argv[]) {
     atexit(SDL_Quit);
 
     SDL_Surface *screen;
-    //Maybe calculate computer speed and check what resolution to use?
     screen = SDL_SetVideoMode(WINSIZEX, WINSIZEY, 32, options);
   
     if(screen == NULL) {
@@ -238,11 +256,12 @@ int main(int argc, char *argv[]) {
     
     while(done == 0) {
         while(SDL_PollEvent(&event)) {
-            if(event.type == SDL_QUIT)
+            if(event.type == SDL_QUIT) {
                 done = 1; 
+            }
     
             if(event.type == SDL_KEYDOWN) {
-                if(event.key.keysym.sym == SDLK_ESCAPE || event.key.keysym.sym == SDLK_q)
+                if(event.key.keysym.sym == SDLK_ESCAPE || event.key.keysym.sym == SDLK_q)   
                     done = 1;
                 
                 keyboardInput(0.15f);

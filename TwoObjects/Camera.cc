@@ -1,5 +1,5 @@
-#include "main.h"
-#include "camera.h"
+#include "Main.h"
+#include "Camera.h"
 
 #define MOUSEDIV 500 //originally 1000
 
